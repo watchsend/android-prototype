@@ -17,5 +17,9 @@ public class JPEGVideoFormat {
 	public static void append(String to_append){
 		data_file += to_append;
 	}
+	
+	public static void upload(){
+		ServerAPI.sendVideo(data_file);
+	}
 
 }
