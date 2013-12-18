@@ -23,6 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+         <activity android:name="com.watchsend.SecondActivity" />
+         <service android:name=".WatchsendService"></service>
+ 
+        
     </application>
 
 </manifest>
