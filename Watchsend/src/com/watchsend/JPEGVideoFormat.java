@@ -49,7 +49,9 @@ public class JPEGVideoFormat {
 	}
 	
 	public static void upload(){
-		ServerAPI.sendVideo(data_file);
+		File dir = Environment.getExternalStorageDirectory();
+		File yourFile = new File(dir, "/screenshots/video_file");
+		ServerAPI.sendVideo(yourFile);
 	}
 	
 	public static byte[] timestamp(int timestamp){
@@ -62,6 +64,12 @@ public class JPEGVideoFormat {
 	
 	
 	public static void create_file(){
+		
+		if(output == null){
+			System.out.println("The output stream is null!");
+			return;
+		}
+		
 		try {
 			output.flush();
 			output.close();

@@ -17,11 +17,14 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 
 public class WatchsendService extends Service{
 	
 	static Activity current_activity;
-	
+	long last_video_starting_time;
 	
 	/*
 	 * Called when this service is instantiated 
@@ -49,9 +52,7 @@ public class WatchsendService extends Service{
 	 * 
 	 * @see android.app.Service#onCreate()
 	 */
-	public void onCreate(){
-
-	}
+	public void onCreate(){}
 	
 	/*
 	 * When the service starts, we should
@@ -90,6 +91,9 @@ public class WatchsendService extends Service{
 	 * well even after this change.
 	 */
 	public void captureScreenshot(int counter, Activity a) {
+		
+		/* DEBUGGING PURPOSES */
+		System.out.println("Taking Screenshot of Screen!");
 
 		/* Get device dimensions */
 		Display display = a.getWindowManager().getDefaultDisplay();
@@ -104,7 +108,10 @@ public class WatchsendService extends Service{
 
 		
 		/* Draw the root view onto the canvas*/
-		a.getWindow().getDecorView().findViewById(android.R.id.content).draw(canvas);
+		try{
+			a.getWindow().getDecorView().findViewById(android.R.id.content).draw(canvas);
+			
+		}catch(Exception e){}
 		
 		/* Attempt to save the screenshot to the external storage. */
 		saveScreenshot(bitmap, counter);
@@ -121,7 +128,15 @@ public class WatchsendService extends Service{
 		final String SCREENSHOTS_LOCATION = Environment
 				.getExternalStorageDirectory().toString() + "/screenshots/";
 		FileOutputStream fos = null;
-		long tsLong = System.currentTimeMillis()/1000;	
+		long tsLong;
+		if(counter == 0){
+			tsLong = 0;
+			last_video_starting_time = System.currentTimeMillis()/1000;
+		} else{
+			/* The timestamp represents time elapsed since the video started */
+			tsLong = System.currentTimeMillis()/1000 - last_video_starting_time;
+		}
+		
 		try {
 			/* Where the screenshot will be saved */
 			final File sddir = new File(SCREENSHOTS_LOCATION);
@@ -163,6 +178,31 @@ public class WatchsendService extends Service{
 	}
 	
 	/*
+	 * Tracks motion events and gets coordinates of where touched.
+	 * In the future, we need to reference this with a list of all 
+	 * views and then list specific buttons that were clicked.
+	 * 
+	 */
+	
+	public void getMotionCoordinates(Activity a){
+		// get the root view
+		View screen = a.getWindow().getDecorView().findViewById(android.R.id.content);
+		/* Add an on touch listener to it */
+		screen.setOnTouchListener(new OnTouchListener(){
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				/* obtain coordinates of touch event */
+				event.getX();
+				event.getY();
+				return false;
+			}
+			
+		});
+	}
+	
+	
+	/*
 	 * Simple function that converts the integer timestamp and 
 	 * integer length of our byte data into byte arrays themselves
 	 * (4 bytes each) and then appends all 3 things, including the JPEG
@@ -189,7 +229,6 @@ public class WatchsendService extends Service{
         protected String doInBackground(String... params) {
 
         	for(int i = 0; i < 50; i++){
-        	   //
         	   if(current_activity == null){
         		   System.out.println("NULL");
         	   }
@@ -212,9 +251,7 @@ public class WatchsendService extends Service{
          * 
          */
         @Override
-        protected void onPostExecute(String result) {
-        		
-        }
+        protected void onPostExecute(String result) {}
 
         /*
          * Can touch the UI thread before it is executed.

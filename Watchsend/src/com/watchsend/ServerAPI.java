@@ -1,5 +1,8 @@
 package com.watchsend;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -15,9 +18,11 @@ public class ServerAPI {
 	 * 
 	 * Usage (static): ServerAPI.sendVideo(video_data);
 	 */
-	public static void sendVideo(String video_data){
+	public static void sendVideo(File video_file){
 		RequestParams params = new RequestParams();
-		params.put("video_data", video_data);
+		try {
+			params.put("video_data", video_file);
+		} catch (FileNotFoundException e) {}
 		
 		ServerConnectionClient.post("/upload_endpoint", params, new AsyncHttpResponseHandler(){
 			
